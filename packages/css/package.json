@@ -1,0 +1,73 @@
+{
+  "name": "@hypergood/css",
+  "version": "0.0.2",
+  "description": "The CSS framework for professionals.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "require": "./dist/vite/index.js",
+      "import": "./dist/vite/index.mjs"
+    },
+    "./internals": {
+      "types": "./dist/internals/index.d.ts",
+      "require": "./dist/internals/index.js",
+      "import": "./dist/internals/index.mjs"
+    },
+    "./presets": {
+      "types": "./dist/presets/index.d.ts",
+      "require": "./dist/presets/index.js",
+      "import": "./dist/presets/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "pnpm build -- --watch",
+    "build": "tsup src/index.ts src/vite/index.ts src/internals/index.ts src/presets/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "solid-js": "^1.7.11",
+    "vite": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.9",
+    "@babel/plugin-syntax-jsx": "^7.22.5",
+    "@babel/plugin-transform-typescript": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@babel/preset-typescript": "^7.22.5",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@types/babel__core": "^7.20.1",
+    "@types/estree": "^1.0.1",
+    "@types/node": "^20.5.0",
+    "prettier": "^2.5.1",
+    "rollup": "^3.28.0",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "solid-js": "^1.7.11",
+    "tsup": "^6.7.0",
+    "typescript": "^5.1.6",
+    "vite": "latest"
+  },
+  "dependencies": {
+    "@typescript-eslint/typescript-estree": "^6.6.0",
+    "acorn": "^8.10.0",
+    "acorn-jsx": "^5.3.2",
+    "acorn-loose": "^8.3.0",
+    "acorn-typescript": "^1.4.3",
+    "acorn-walk": "^8.2.0",
+    "csstype": "^3.1.2",
+    "estree-walker": "^3.0.3"
+  }
+}

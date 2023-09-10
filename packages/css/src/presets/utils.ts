@@ -122,6 +122,9 @@ export const RECOMMENDED_UTILS = {
     borderBottomLeftRadius: radius,
   }),
 
+  // display
+  d: (display: CSS["display"]) => ({ display }),
+
   // divide
   divideColor: (offset: CSS["borderColor"]) => ({
     "& > * + *": {
@@ -224,10 +227,7 @@ export const RECOMMENDED_UTILS = {
     maxHeight: size,
   }),
 
-  //
-  align: (align: CSS["textAlign"]) => ({
-    textAlign: align,
-  }),
+  // Flex & Grid
   colEnd: (gridColumnEnd: CSS["gridColumnEnd"]) => ({
     gridColumnEnd,
   }),
@@ -249,19 +249,9 @@ export const RECOMMENDED_UTILS = {
   colStart: (gridColumnStart: CSS["gridColumnStart"]) => ({
     gridColumnStart,
   }),
-  d: (display: CSS["display"]) => ({ display }),
   flexDir: (flexDirection: CSS["flexDirection"]) => ({
     flexDirection,
   }),
-  fontScale: (scale: number) => {
-    const [fontSize, lineHeight] =
-      fontScales[scale.toString()] || fontScales["1"];
-    return {
-      fontSize: rem(fontSize),
-      lineHeight: em(lineHeight, fontSize),
-      letterSpacing: `${getLetterSpacing(fontSize)}em`,
-    };
-  },
   gridCols: (cols: number | "none" | (string & {})) =>
     typeof cols === "number"
       ? { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }
@@ -275,12 +265,6 @@ export const RECOMMENDED_UTILS = {
   }),
   justify: (justify: CSS["justifyContent"]) => ({
     justifyContent: justify,
-  }),
-  lineClamp: (lineClamp: CSS["lineClamp"]) => ({
-    "-webkit-line-clamp": lineClamp,
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    overflow: "hidden",
   }),
   rowEnd: (gridRowEnd: CSS["gridRowEnd"]) => ({
     gridRowEnd,
@@ -304,8 +288,27 @@ export const RECOMMENDED_UTILS = {
     gridRowStart,
   }),
 
-  // SPECIALS
-  // The ones that accept css as an argument
+  // Typography
+  align: (align: CSS["textAlign"]) => ({
+    textAlign: align,
+  }),
+  fontScale: (scale: number) => {
+    const [fontSize, lineHeight] =
+      fontScales[scale.toString()] || fontScales["1"];
+    return {
+      fontSize: rem(fontSize),
+      lineHeight: em(lineHeight, fontSize),
+      letterSpacing: `${getLetterSpacing(fontSize)}em`,
+    };
+  },
+  lineClamp: (lineClamp: CSS["lineClamp"]) => ({
+    "-webkit-line-clamp": lineClamp,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    overflow: "hidden",
+  }),
+
+  // SPECIALS - a.k.a. The ones that accept css as an argument
   print: (css: CSS) => ({
     "@media print": css,
   }),

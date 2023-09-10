@@ -1,6 +1,6 @@
 {
   "name": "@hypergood/css",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The CSS framework for professionals.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,8 @@
   ],
   "scripts": {
     "dev": "pnpm build -- --watch",
-    "build": "tsup src/index.ts src/vite/index.ts src/internals/index.ts src/presets/index.ts"
+    "build": "tsup src/index.ts src/vite/index.ts src/internals/index.ts src/presets/index.ts",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -58,7 +59,8 @@
     "solid-js": "^1.7.11",
     "tsup": "^6.7.0",
     "typescript": "^5.1.6",
-    "vite": "latest"
+    "vite": "latest",
+    "vitest": "^0.34.4"
   },
   "dependencies": {
     "@typescript-eslint/typescript-estree": "^6.6.0",

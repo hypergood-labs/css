@@ -2,6 +2,7 @@ import { StyleConfig } from "../../types";
 import { Declaration } from "../types";
 import { atomizers } from "../atomizers";
 import { toKebabCase } from "./string";
+import { evaluateUtils } from "./evaluateUtils";
 
 export function cssObjectToDeclarations(
   config: StyleConfig = {},
@@ -9,29 +10,6 @@ export function cssObjectToDeclarations(
 ) {
   cssObj = evaluateUtils(config, cssObj);
   return nestedCssObjectToDeclarations(config, cssObj);
-}
-
-function evaluateUtils(config: StyleConfig = {}, cssObj: Record<string, any>) {
-  const utils = config.utils ?? {};
-  const utilsKeys = Object.keys(utils);
-  const utilsValues = Object.values(utils);
-
-  let result = { ...cssObj };
-
-  for (const [key, value] of Object.entries(cssObj)) {
-    if (utilsKeys.includes(key)) {
-      let resultingCss = (utilsValues[utilsKeys.indexOf(key)](value) ||
-        {}) as any;
-      resultingCss = evaluateUtils(config, resultingCss);
-      result = {
-        ...result,
-        ...resultingCss,
-      };
-      delete result[key];
-    }
-  }
-
-  return result;
 }
 
 function nestedCssObjectToDeclarations(
@@ -55,20 +33,25 @@ function nestedCssObjectToDeclarations(
       }
       let nextSelector = key;
 
-      if (!nextSelector.includes("&")) {
-        if (nextSelector.startsWith(":")) {
-          nextSelector = `&${nextSelector}`;
-        } else {
-          nextSelector = `& ${nextSelector}`;
-        }
-      }
-      nextSelector = nextSelector.replaceAll("&", selector);
-
       let nextSelectors = nextSelector.split(/,\s*/);
 
-      return nextSelectors.flatMap((nextSelector) =>
-        nestedCssObjectToDeclarations(config, value, nextSelector, atRules)
-      );
+      return nextSelectors.flatMap((nextSelector) => {
+        if (!nextSelector.includes("&")) {
+          if (nextSelector.startsWith(":") || nextSelector.startsWith("[")) {
+            nextSelector = `&${nextSelector}`;
+          } else {
+            nextSelector = `& ${nextSelector}`;
+          }
+        }
+        nextSelector = nextSelector.replaceAll("&", selector);
+
+        return nestedCssObjectToDeclarations(
+          config,
+          value,
+          nextSelector,
+          atRules
+        );
+      });
     }
 
     key = toKebabCase(key);

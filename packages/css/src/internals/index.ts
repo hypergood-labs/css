@@ -39,7 +39,7 @@ export function createStyledComponent(
 
     let variantClassNames = () =>
       variantNames
-        .map((name) => variants[props[name]?.toString() || ""] || "")
+        .map((name) => variants[name][props[name]?.toString() || ""] || "")
         .join(" ");
 
     let compoundVariantClassNames = () =>

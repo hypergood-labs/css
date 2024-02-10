@@ -65,26 +65,23 @@ export const RECOMMENDED_UTILS = {
       : {},
 
   // border
-  b: (border: CSS["border"]) => ({
-    border,
-  }),
-  bt: (borderTop: CSS["borderTop"]) => ({
+  borderT: (borderTop: CSS["borderTop"]) => ({
     borderTop,
   }),
-  br: (borderRight: CSS["borderRight"]) => ({
+  borderR: (borderRight: CSS["borderRight"]) => ({
     borderRight,
   }),
-  bb: (borderBottom: CSS["borderBottom"]) => ({
+  borderB: (borderBottom: CSS["borderBottom"]) => ({
     borderBottom,
   }),
-  bl: (borderLeft: CSS["borderLeft"]) => ({
+  borderL: (borderLeft: CSS["borderLeft"]) => ({
     borderLeft,
   }),
-  bx: (borderInline: CSS["borderLeft"]) => ({
+  borderX: (borderInline: CSS["borderLeft"]) => ({
     borderLeft: borderInline,
     borderRight: borderInline,
   }),
-  by: (borderBlock: CSS["borderTop"]) => ({
+  borderY: (borderBlock: CSS["borderTop"]) => ({
     borderTop: borderBlock,
     borderRight: borderBlock,
   }),

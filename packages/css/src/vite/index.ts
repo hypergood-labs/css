@@ -1,4 +1,4 @@
-import type { Plugin } from "vite";
+import type { Plugin, ResolvedConfig } from "vite";
 // @ts-ignore
 import { parse } from "@typescript-eslint/typescript-estree";
 import type { ImportSpecifier, Node } from "estree";
@@ -7,7 +7,9 @@ import { Declaration } from "./types";
 import { StyleConfig } from "../types";
 import {
   declarationToClassName,
+  getDeclarationCache,
   resetDeclarationCache,
+  setDeclarationCache,
 } from "./utils/declarationToClassName";
 import { declarationsToCSS } from "./utils/declarationsToCSS";
 import { cssObjectToDeclarations } from "./utils/cssObjectToDeclarations";
@@ -18,6 +20,8 @@ import {
   getSpreadValueFromJSXElement,
 } from "./utils/estree";
 import { replaceThemeValues } from "./transformers/replaceThemeValues";
+import { join, resolve } from "path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 
 type PluginConfig = {
   fileMatch?: RegExp;
@@ -29,8 +33,26 @@ let generatedCssFiles: {
   [filename: string]: string;
 } = {};
 
+function getExtension(filename: string) {
+  const index = filename.lastIndexOf(".");
+  return index < 0 ? "" : filename.substring(index).replace(/\?.+$/, "");
+}
+const EXTENSIONS = [
+  ".js",
+  ".ts",
+  ".jsx",
+  ".tsx",
+  ".mjs",
+  ".mts",
+  ".mjsx",
+  ".mtsx",
+  ".cjs",
+  ".cts",
+  ".cjsx",
+  ".ctsx",
+];
+
 export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
-  const fileMatch = config.fileMatch ?? /\.(tsx|jsx)$/;
   generatedCssFiles = {};
   resetDeclarationCache();
 
@@ -49,12 +71,28 @@ export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
     return filename;
   }
 
+  let viteConfig: ResolvedConfig;
+
   return {
     name: "hypergood-css",
     enforce: "pre",
+    configResolved(_config) {
+      viteConfig = _config;
+    },
     buildStart() {
       generatedCssFiles = {};
       resetDeclarationCache();
+
+      const declarationCachePath = join(
+        viteConfig.root,
+        ".hypergood/declaration-cache.json"
+      );
+      if (existsSync(declarationCachePath)) {
+        const declarationCache = JSON.parse(
+          readFileSync(declarationCachePath, "utf-8")
+        );
+        setDeclarationCache(declarationCache);
+      }
     },
     resolveId(id) {
       if (!id.startsWith(virtualModuleId)) return undefined;
@@ -69,7 +107,9 @@ export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
       return generatedCssFiles[filename];
     },
     async transform(src, id) {
-      if (!fileMatch.test(id)) return undefined;
+      const extension = getExtension(id);
+
+      if (!EXTENSIONS.includes(extension)) return undefined;
 
       let filename = createUniqueFilename(id);
 
@@ -83,6 +123,18 @@ export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
         code: code!,
         map: null,
       };
+    },
+    async buildEnd() {
+      const dir = resolve(viteConfig.root, ".hypergood");
+
+      if (!existsSync(dir)) {
+        mkdirSync(dir);
+      }
+      const declarationCachePath = join(dir, "declaration-cache.json");
+      writeFileSync(
+        declarationCachePath,
+        JSON.stringify(getDeclarationCache(), null, 2)
+      );
     },
   };
 }
@@ -443,7 +495,9 @@ async function transform(
 
         if (
           classNameGroups.length === 1 &&
-          classNameGroups[0].test === "true"
+          classNameGroups[0].test === "true" &&
+          !originalClassName &&
+          !spreadValue
         ) {
           modifications.push({
             start: attributeRange![0],
@@ -465,9 +519,9 @@ async function transform(
           importMergeClassNames();
 
           if (originalClassName) {
-            newClassNameAttribute = `class={_$mergeClassNames(${originalClassName.value}, ${classNameArguments})}`;
+            newClassNameAttribute = `class={_$mergeClassNames(${classNameArguments}, ${originalClassName.value})}`;
           } else if (spreadValue) {
-            newClassNameAttribute = `class={_$mergeClassNames(${spreadValue}.class, ${classNameArguments})}`;
+            newClassNameAttribute = `class={_$mergeClassNames(${classNameArguments}, ${spreadValue}.class)}`;
           }
 
           modifications.push({

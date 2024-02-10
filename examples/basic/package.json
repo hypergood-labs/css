@@ -1,29 +1,21 @@
 {
-  "name": "basic",
-  "scripts": {
-    "dev": "solid-start dev",
-    "build": "solid-start build",
-    "start": "solid-start start"
-  },
+  "name": "basic-vinxi",
   "type": "module",
-  "devDependencies": {
-    "autoprefixer": "^10.4.15",
-    "postcss": "^8.4.29",
-    "solid-start-cloudflare-workers": "^0.3.5",
-    "solid-start-node": "^0.3.5",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.9",
-    "vite-plugin-inline-css-modules": "^0.0.7"
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start"
   },
   "dependencies": {
     "@hypergood/css": "workspace:*",
-    "@solidjs/meta": "^0.28.6",
-    "@solidjs/router": "^0.8.3",
-    "solid-js": "^1.7.11",
-    "solid-start": "^0.3.5",
-    "undici": "^5.23.0"
+    "@solidjs/meta": "^0.29.2",
+    "@solidjs/router": "^0.12.0",
+    "@solidjs/start": "^0.5.4",
+    "@vinxi/vite-plugin-inspect": "^0.6.27",
+    "solid-js": "^1.8.14",
+    "vinxi": "^0.2.1"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }

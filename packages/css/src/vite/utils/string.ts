@@ -1,18 +1,21 @@
+const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+const ALPHABET_LENGTH = ALPHABET.length;
+
 function toChar63(number: number) {
-  let chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-  return chars[number - 1];
+  return ALPHABET[number - 1];
 }
 
 /**
- * Oops it's actually base 63, got rid of the hyphen so i could use it as a delimiter
+ * Oops it's actually base 36, limited to lowercase letters and numbers for
+ * better compression.
  */
 export function toBase64ish(number: number): string {
   let string = "";
   let _number = number;
 
   while (_number > 0) {
-    string = string + toChar63(_number % 63 || 63);
-    _number = Math.floor((_number - 1) / 63);
+    string = string + toChar63(_number % ALPHABET_LENGTH || ALPHABET_LENGTH);
+    _number = Math.floor((_number - 1) / ALPHABET_LENGTH);
   }
 
   return string;

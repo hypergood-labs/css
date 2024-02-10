@@ -1,41 +1,58 @@
 import { Declaration } from "../types";
 import { toBase64ish } from "./string";
 
-let declarationIndex = 1;
-let declarationCache: {
+let propertyCacheIndex = 1;
+let propertyCache: {
   [declarationHash: string]: string;
 } = {};
 
-let valueIndex = 1;
+let valueCacheIndex = 1;
 let valueCache: {
   [valueHash: string]: string;
 } = {};
 
 export function resetDeclarationCache() {
-  declarationIndex = 1;
-  declarationCache = {};
-  valueIndex = 1;
+  propertyCacheIndex = 1;
+  propertyCache = {};
+  valueCacheIndex = 1;
   valueCache = {};
 }
 
 export function declarationToClassName(declaration: Declaration): string {
   let { selector, property, value, atRules } = declaration;
 
-  const declarationKey = JSON.stringify([selector, property, ...atRules]);
-  let declarationHash = declarationCache[declarationKey];
+  const declarationKey = [selector, property, ...atRules].join(" $ ");
+  let declarationHash = propertyCache[declarationKey];
   if (!declarationHash) {
-    declarationCache[declarationKey] = toBase64ish(declarationIndex++);
-    declarationHash = declarationCache[declarationKey];
+    propertyCache[declarationKey] = toBase64ish(propertyCacheIndex++);
+    declarationHash = propertyCache[declarationKey];
   }
 
   const valueKey = value;
   let valueHash = valueCache[valueKey];
   if (!valueHash) {
-    valueCache[valueKey] = toBase64ish(valueIndex++);
+    valueCache[valueKey] = toBase64ish(valueCacheIndex++);
     valueHash = valueCache[valueKey];
   }
 
   const className = "x" + declarationHash + "-" + valueHash;
 
   return className;
+}
+
+export function getDeclarationCache() {
+  return {
+    propertyCache,
+    valueCache,
+  };
+}
+
+export function setDeclarationCache(
+  cache: ReturnType<typeof getDeclarationCache>
+) {
+  propertyCache = cache.propertyCache;
+  propertyCacheIndex = Object.keys(propertyCache).length + 1;
+
+  valueCache = cache.valueCache;
+  valueCacheIndex = Object.keys(valueCache).length + 1;
 }

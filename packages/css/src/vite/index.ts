@@ -1,8 +1,6 @@
 import type { Plugin, ResolvedConfig } from "vite";
 // @ts-ignore
-import { parse } from "@typescript-eslint/typescript-estree";
-import type { ImportSpecifier, Node } from "estree";
-import * as estreeWalker from "estree-walker";
+import { parse, TSESTree } from "@typescript-eslint/typescript-estree";
 import { Declaration } from "./types";
 import { StyleConfig } from "../types";
 import {
@@ -10,18 +8,21 @@ import {
   getDeclarationCache,
   resetDeclarationCache,
   setDeclarationCache,
-} from "./utils/declarationToClassName";
-import { declarationsToCSS } from "./utils/declarationsToCSS";
-import { cssObjectToDeclarations } from "./utils/cssObjectToDeclarations";
+} from "./core/utils/declarationToClassName";
+import { declarationsToCSS } from "./core/utils/declarationsToCSS";
+import { cssObjectToDeclarations } from "./core/utils/cssObjectToDeclarations";
 import { mergeClassNames } from "../internals";
 import {
   getAttributeFromJSXElement,
   getCSSValueFromJSXElement,
   getSpreadValueFromJSXElement,
 } from "./utils/estree";
-import { replaceThemeValues } from "./transformers/replaceThemeValues";
 import { join, resolve } from "path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { astWalk } from "./utils/ast";
+import { readFile } from "fs/promises";
+import { moduleToIIFE } from "./transformers/moduleToIIFE";
+import { stripTypescript } from "./transformers/stripTypescript";
 
 type PluginConfig = {
   fileMatch?: RegExp;
@@ -113,7 +114,26 @@ export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
 
       let filename = createUniqueFilename(id);
 
-      let { code, css } = await transform(src, filename, config.config);
+      const resolveFileContents = async (source: string) => {
+        const resolvedId = await this.resolve("~/theme.styles", id, {
+          skipSelf: true,
+        });
+
+        if (!resolvedId) return "";
+
+        const contents = await readFile(resolvedId.id, "utf-8");
+
+        return contents;
+      };
+
+      const preamble = await getPreamble(src, resolveFileContents);
+
+      let { code, css } = await transform(
+        src,
+        filename,
+        config.config,
+        preamble
+      );
 
       if (css) {
         generatedCssFiles[filename] = css;
@@ -137,6 +157,57 @@ export default function vitePluginHypergood(config: PluginConfig = {}): Plugin {
       );
     },
   };
+}
+
+async function getPreamble(
+  code: string,
+  getFileFromImport: (id: string) => Promise<string>
+) {
+  let preamble = "";
+
+  const imports: Array<{
+    source: string;
+    specifiers: Array<{ local: string; imported: string }>;
+  }> = [];
+
+  const tree = parse(code, {
+    range: true,
+    jsx: true,
+  });
+
+  const styleExtensions = EXTENSIONS.map((ext) => ".styles" + ext);
+  styleExtensions.push(".styles");
+
+  astWalk(tree, {
+    enter(node) {
+      if (node.type === "ImportDeclaration") {
+        let source = node.source.value;
+        let specifiers = node.specifiers.map((s) => ({
+          local: s.local.name,
+          imported: s.type === "ImportSpecifier" ? s.imported.name : "*",
+        }));
+        if (styleExtensions.some((ext) => source.endsWith(ext))) {
+          imports.push({ source, specifiers });
+        }
+      }
+    },
+  });
+
+  for (let { source, specifiers } of imports) {
+    let file = await getFileFromImport(source);
+    if (!file) continue;
+
+    const cleanFile = moduleToIIFE(stripTypescript(file));
+
+    preamble +=
+      `const { ${specifiers
+        .map((s) => `${s.imported}: ${s.local}`)
+        .join(", ")} } = ` +
+      cleanFile +
+      "\n";
+  }
+
+  return preamble;
 }
 
 function getJSXElementAttributeValue(
@@ -166,9 +237,9 @@ function getJSXElementAttributeValue(
 async function transform(
   src: string,
   filename: string,
-  config: StyleConfig = {}
+  config: StyleConfig = {},
+  preamble: string
 ) {
-  src = replaceThemeValues(config, src);
   let declarations = [] as Declaration[];
 
   let tree = parse(src, {
@@ -206,7 +277,7 @@ async function transform(
     imports.createStyledComponent = true;
   }
 
-  function getSrc(node: Node) {
+  function getSrc(node: TSESTree.Node) {
     return src.slice(node.range![0], node.range![1]);
   }
 
@@ -223,7 +294,8 @@ async function transform(
   }
 
   function processCSSObjStringAndGetClassNames(cssObjStr: string) {
-    let cssObj = Function(`return (${cssObjStr})`)();
+    let cssObj = Function(`${preamble}
+return (${cssObjStr})`)();
 
     return processCSSObjectAndGetClassNames(cssObj);
   }
@@ -231,13 +303,13 @@ async function transform(
   let localCssImportName = "";
   let localStyledImportName = "";
 
-  estreeWalker.walk(tree, {
+  astWalk(tree, {
     enter(node) {
       if (node.type === "ImportDeclaration") {
         if (node.source.value === "@hypergood/css") {
           let specifier = node.specifiers.find(
             (s) => s.type === "ImportSpecifier" && s.imported.name === "css"
-          ) as ImportSpecifier | undefined;
+          ) as TSESTree.ImportSpecifier | undefined;
           if (specifier) {
             localCssImportName = specifier.local.name;
 
@@ -251,7 +323,7 @@ async function transform(
           }
           specifier = node.specifiers.find(
             (s) => s.type === "ImportSpecifier" && s.imported.name === "styled"
-          ) as ImportSpecifier | undefined;
+          ) as TSESTree.ImportSpecifier | undefined;
           if (specifier) {
             localStyledImportName = specifier.local.name;
 
@@ -330,7 +402,7 @@ async function transform(
         }
 
         if (cssObj.type === "ObjectExpression") {
-          let config = Function(`return (${getSrc(cssObj)})`)();
+          let config = Function(`${preamble}\n return (${getSrc(cssObj)})`)();
 
           let {
             variants = {},

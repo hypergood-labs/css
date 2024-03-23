@@ -1,5 +1,5 @@
-import { StyleConfig } from "../../types";
-import { Declaration } from "../types";
+import { StyleConfig } from "../../../types";
+import { Declaration } from "../../types";
 import { atomizers } from "../atomizers";
 import { toKebabCase } from "./string";
 import { evaluateUtils } from "./evaluateUtils";
@@ -82,9 +82,10 @@ function nestedCssObjectToDeclarations(
   });
 }
 
-/** CSS Properties whose number values should be unitless. */
+/** CSS Properties whose number values should not be auto-converted to pixels. */
 export const unitlessProps: Record<string, number> = {
   "animation-iteration-count": 1,
+  "aspect-ratio": 1,
   "border-image-outset": 1,
   "border-image-slice": 1,
   "border-Image-width": 1,

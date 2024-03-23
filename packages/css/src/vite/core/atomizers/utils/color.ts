@@ -1,5 +1,5 @@
 /**
- * Choose the shorted option between hex and named color, prioritize hex color if both are the same length, prioritize gray over grey
+ * Choose the shortest option between hex and named color, prioritize hex color if both are the same length, prioritize gray over grey
  */
 const NAMED_COLOR_MAP: Record<string, string> = {
   aliceblue: "#f0f8ff",

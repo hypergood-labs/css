@@ -51,7 +51,6 @@ export type CSSProp<
 // -------------------------------------------------------------------------------------------------
 
 export type StyleConfig = {
-  theme?: Record<string, any>;
   media?: Record<string, string>;
   utils?: Record<string, (value: any) => CSS<{}, {}>>;
 };
@@ -62,12 +61,6 @@ export type RegisteredConfig = Register extends {
   config: infer TConfig extends any;
 }
   ? TConfig
-  : never;
-
-export type RegisteredTheme = RegisteredConfig extends {
-  theme: infer TTheme extends any;
-}
-  ? TTheme
   : never;
 
 export type RegisteredMedia = RegisteredConfig extends {

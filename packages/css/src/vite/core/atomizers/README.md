@@ -37,4 +37,4 @@ Atomizers are a kind of 'internal `utils`' that map from real CSS -> real CSS. T
    }
    ```
 
-Technically there is a difference between 'shortest value string length' and 'least bytes on average when brotli compressed with a bunch of other declarations in a big css file', but I do not feel like measuring the difference.
+Technically there is a difference between 'shortest string length' and 'least bytes on average when brotli compressed with a bunch of other declarations in a big css file', but I do not feel like measuring the difference.

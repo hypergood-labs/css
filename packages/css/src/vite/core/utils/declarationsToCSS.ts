@@ -1,4 +1,4 @@
-import { Declaration } from "../types";
+import { Declaration } from "../../types";
 import { declarationToClassName } from "./declarationToClassName";
 import { dedupeDeclarations } from "./declarations";
 

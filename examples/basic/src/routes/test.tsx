@@ -1,4 +1,5 @@
 import { styled } from "@hypergood/css";
+import { colors } from "~/theme.styles";
 
 const style = {
   width: "120px",
@@ -25,6 +26,14 @@ export default function Home() {
         }}
       >
         simple
+      </div>
+      <div
+        style={style}
+        css={{
+          backgroundColor: `${colors.green} !important`,
+        }}
+      >
+        via theme
       </div>
       <div
         style={style}

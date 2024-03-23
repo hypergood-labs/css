@@ -1,6 +1,6 @@
 import { test, describe, expect } from "vitest";
-import { StyleConfig } from "../types";
-import { cssObjectToDeclarations } from "../vite/utils/cssObjectToDeclarations";
+import { StyleConfig } from "../../../types";
+import { cssObjectToDeclarations } from "./cssObjectToDeclarations";
 
 const CONFIG: StyleConfig = {
   media: {

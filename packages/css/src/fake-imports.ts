@@ -1,20 +1,7 @@
-import { RegisteredCSS, RegisteredTheme } from "./types";
+import { RegisteredCSS } from "./types";
 import type * as TypeUtils from "./type-utils";
 import { ValidComponent } from "solid-js";
 import { DynamicProps } from "solid-js/web";
-
-// -------------------------------------------------------------------------------------------------
-// theme
-// -------------------------------------------------------------------------------------------------
-
-export const theme: RegisteredTheme = new Proxy(
-  {},
-  {
-    get: (_, key) => {
-      throw new Error(`\`@hypergood/css\`: Vite plugin not installed.`);
-    },
-  }
-);
 
 // -------------------------------------------------------------------------------------------------
 // css

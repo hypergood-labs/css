@@ -1,4 +1,4 @@
-import { StyleConfig } from "../../types";
+import { StyleConfig } from "../../../types";
 
 export function evaluateUtils(
   config: StyleConfig = {},

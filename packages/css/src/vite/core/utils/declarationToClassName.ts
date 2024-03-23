@@ -1,4 +1,4 @@
-import { Declaration } from "../types";
+import { Declaration } from "../../types";
 import { toBase64ish } from "./string";
 
 let propertyCacheIndex = 1;

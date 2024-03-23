@@ -1,4 +1,4 @@
-import { Declaration } from "../types";
+import { Declaration } from "../../types";
 
 export function hashDeclaration(declaration: Declaration) {
   return `${declaration.selector};${declaration.property};${

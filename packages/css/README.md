@@ -1,3 +1,5 @@
 # Hypergood CSS
 
-The CSS framework for professionals.
+The smallest CSS compiler.
+
+Learn more at [hypergood.app/css](https://hypergood.app/css).

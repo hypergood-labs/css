@@ -7,9 +7,7 @@ import type * as TypeUtils from "./type-utils";
 
 interface NativeCssProperties
   extends Native.Properties<string | number, string | number>,
-    Native.PropertiesHyphen<string | number, string | number>,
-    Native.SvgProperties<string | number, string | number>,
-    Native.SvgPropertiesHyphen<string | number, string | number> {}
+    Native.SvgProperties<string | number, string | number> {}
 
 type ValueByPropertyName<PropertyName> =
   PropertyName extends keyof NativeCssProperties
